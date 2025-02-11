@@ -1,6 +1,7 @@
 
 import streamlit as st
 import os
+import pandas as pd
 from langchain.document_loaders import PyPDFLoader
 from langchain.prompts import PromptTemplate
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -13,6 +14,7 @@ from io import BytesIO
 from typing import Any, Dict, List
 import re
 from langchain.docstore.document import Document
+from docx import Document as DocxDocument
 
 
 AUTH_TYPE = "API_KEY" # The authentication type to use, e.g., API_KEY (default), SECURITY_TOKEN, INSTANCE_PRINCIPAL, RESOURCE_PRINCIPAL.
@@ -50,18 +52,35 @@ def parse_txt(file: BytesIO) -> List[str]:
     return text.split("\n\n")  # Devuelve lista de párrafos separados por doble salto de línea
 
 
-## Convert .py
+
+
+
+## Convert Excel
+#@st.cache_data
+#def parse_excel(file: BytesIO) -> List[str]:
+#    """Lee un archivo Excel y devuelve su contenido en una lista de strings por hoja."""
+ #   output = []
+  #  excel_data = pd.ExcelFile(file)  # Cargar archivo Excel
+   #
+    #for sheet_name in excel_data.sheet_names:
+     #   df = pd.read_excel(excel_data, sheet_name=sheet_name)  # Leer hoja
+      #  text = df.to_string(index=False)  # Convertir DataFrame a texto sin índices
+       # output.append(f"--- {sheet_name} ---\n{text}")  # Agregar el nombre de la hoja
+        
+   # return output
+
+
+
+
+## Convert Word
 @st.cache_data
-def parse_py(file: BytesIO) -> List[str]:
-    text = file.read().decode("utf-8")  # Leer el archivo .py como texto
+def parse_word(file: BytesIO) -> List[str]:
+    """Lee un archivo Word (.docx) y devuelve su contenido como un solo string con párrafos separados."""
+    file_bytes = BytesIO(file.read())  # Convertir UploadedFile a BytesIO
+    doc = DocxDocument(file_bytes)  # Cargar el archivo Word desde BytesIO
+    text = "\n\n".join([para.text.strip() for para in doc.paragraphs if para.text.strip()])
     
-    # Remover espacios innecesarios al final de cada línea
-    text = re.sub(r"[ \t]+$", "", text, flags=re.MULTILINE)
-    
-    # Eliminar líneas en blanco excesivas (más de dos seguidas)
-    text = re.sub(r"\n{3,}", "\n\n", text)
-    
-    return text.split("\n\n")  # Devuelve una lista de bloques de código separados por doble salto de línea
+    return text  # ✅ Ahora devolvemos un string válido
 
 
 
@@ -183,16 +202,18 @@ def main():
     pages = None
     if opt == "Upload-own-file":
         uploaded_file = st.file_uploader(
-        "**Upload a Pdf, txt or python file :**",
-            type=["pdf", "txt", "py"],
+        "**Upload a Pdf, txt, word(.docx) or excel(.xls/.xlsx) file :**",
+            type=["pdf", "txt", "docx"],
             )
         if uploaded_file:
             if uploaded_file.name.endswith(".txt"):
                 doc = parse_txt(uploaded_file)
             elif uploaded_file.name.endswith(".pdf"):
                 doc = parse_pdf(uploaded_file)
-            elif uploaded_file.name.endswith(".py"):
-                doc = parse_py(uploaded_file)  # Llama a la nueva función para archivos .py
+            elif uploaded_file.name.endswith(".docx"):
+                doc = parse_word(uploaded_file)  # Llama a la nueva función para archivos .docx
+            #elif uploaded_file.name.endswith(".xls", ".xlsx"):
+             #   doc = parse_excel(uploaded_file)
                 
             pages = text_to_docs(doc, chunk_size, chunk_overlap)
             print("Pages are here")
@@ -202,7 +223,7 @@ def main():
             page_holder = st.empty()
             if pages:
                 print("Inside if PAges")
-                st.write("PDF loaded successfully")
+                st.write("Document loaded successfully")
                 with page_holder.expander("File Content", expanded=False):
                     pages
 

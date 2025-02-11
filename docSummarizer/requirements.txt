@@ -4,3 +4,4 @@ unstructured
 langchain_community
 pypdf
 transformers
+python-docx

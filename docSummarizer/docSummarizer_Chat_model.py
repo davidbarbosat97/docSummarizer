@@ -189,11 +189,21 @@ def main():
                                               #step=0.05,
                                               #value=0.0)        
     user_prompt = st.text_input("Enter the document summary prompt:", value= "Could you please give a brief about the following document? ")
-    temperature = st.sidebar.number_input("Set the GenAI Temperature",
+    
+    if (llm_name == "cohere.command-r-08-2024") or (llm_name == "cohere.command-r-plus-08-2024"):
+            temperature = st.sidebar.number_input("Set the GenAI Temperature",
                                               min_value = 0.0,
                                               max_value=1.0,
                                               step=0.1,
                                               value=0.5)
+    else:
+        temperature = st.sidebar.number_input("Set the GenAI Temperature",
+                                              min_value = 0.0,
+                                              max_value=2.0,
+                                              step=0.1,
+                                              value=1.0)
+    
+    
     max_token = st.sidebar.slider("Max Token size", min_value=400, max_value = 4000,step=10, value=600) 
     compartment_id = st.sidebar.text_input("Enter the OCI compartment id", value= "")
 
@@ -202,7 +212,7 @@ def main():
     pages = None
     if opt == "Upload-own-file":
         uploaded_file = st.file_uploader(
-        "**Upload a Pdf, txt, word(.docx) or excel(.xls/.xlsx) file :**",
+        "**Upload a Pdf, txt or word(.docx) file :**",
             type=["pdf", "txt", "docx"],
             )
         if uploaded_file:

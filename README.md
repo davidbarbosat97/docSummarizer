@@ -6,7 +6,7 @@ GenAI Demo is a **Generative AI-based** solution that efficiently summarizes doc
 ## ⚡ Key Features
 - 🔥 **Summarizes long documents** in seconds.
 - 🧠 **Leverages LLMs** to understand and synthesize information.
-- 📄 **Supports multiple document formats (PDF, docx, text, xls)**.
+- 📄 **Supports multiple document formats (PDF, docx, text)**.
 - 🛠 **Simple and modular interface** for easy integration.
 
 ## Pre-requisites

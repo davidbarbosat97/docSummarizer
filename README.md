@@ -33,7 +33,7 @@ pip install -U langchain oci
 ```
 Install requirements
 ```bash
-pip install -r requirements. txt
+pip install -r requirements.txt
 ```
 Create your .oci folder and its components (if never created yet). You will need to download the private key from OCI
 ```bash
